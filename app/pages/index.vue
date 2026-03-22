@@ -22,22 +22,36 @@
 
       <!-- <HomeChart /> -->
 
-      <UTable
-        :data="milkings ?? []"
-        :columns="columns"
-        :loading="status === 'pending'"
-        :ui="{
-          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-          th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r'
-        }"
-        class="flex-1 mt-10 !overflow-visible"
-      />
+      <div class="ring ring-default rounded-lg">
+        <div class="flex px-4 py-3.5">
+          <UInput
+            v-model="globalFilter"
+            class="max-w-sm"
+            placeholder="Filter..."
+            icon="eva:search-outline"
+          />
+        </div>
+
+        <UTable
+          v-model:global-filter="globalFilter"
+          :data="milkings ?? []"
+          :columns="columns"
+          :loading="status === 'pending'"
+          :ui="{
+            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+            th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r'
+          }"
+          class="flex-1 !overflow-visible"
+        />
+      </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
 const supabase = useSupabaseClient()
+
+const globalFilter = ref('')
 
 definePageMeta({
   layout: 'dashboard'
@@ -58,7 +72,27 @@ const { data: milkings, status } = useLazyAsyncData(
     .select('cow_number, milk_weight_kg, milked_at, cows!inner(name)')
     .gte('milked_at', today.value.toISOString())
     .lt('milked_at', tomorrow.value.toISOString())
-    .then(({ data }) => data),
+    .order('milked_at', { ascending: true })
+    .then(({ data }) => {
+      const byCoW = (data ?? []).reduce((acc, row) => {
+        if (!acc[row.cow_number]) {
+          acc[row.cow_number] = {
+            cow_number: row.cow_number,
+            name: row.cows?.name ?? null,
+            milk_weight_kg: 0,
+            milk_weight_kg_session_1: 0,
+            milk_weight_kg_session_2: 0,
+            sessions: 0
+          }
+        }
+        const cow = acc[row.cow_number]
+        cow[`milk_weight_kg_session_${cow.sessions + 1}`] += row.milk_weight_kg
+        cow.milk_weight_kg += row.milk_weight_kg
+        cow.sessions += 1
+        return acc
+      }, {})
+      return Object.values(byCoW).sort((a, b) => a.cow_number - b.cow_number)
+    }),
   { watch: [today] }
 )
 
@@ -68,18 +102,23 @@ const columns = [
     header: 'Dier Nr.'
   },
   {
-    accessorKey: 'cows.name',
+    accessorKey: 'name',
     header: 'Naam'
   },
   {
-    accessorKey: 'milk_weight_kg',
-    header: 'Opbrengst',
-    cell: ({ getValue }) => `${getValue()} kg`
+    accessorKey: 'milk_weight_kg_session_1',
+    header: '\'s ochtends',
+    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
   },
   {
-    accessorKey: 'milked_at',
-    header: 'Tijdstip',
-    cell: ({ getValue }) => new Date(getValue()).toLocaleTimeString()
+    accessorKey: 'milk_weight_kg_session_2',
+    header: '\'s avonds',
+    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
+  },
+  {
+    accessorKey: 'milk_weight_kg',
+    header: 'Totaal',
+    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
   }
 ]
 </script>
