@@ -1,8 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/supabase', 'nuxt-charts'],
-
-  ssr: false,
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui',
+    '@nuxtjs/supabase',
+    'nuxt-charts',
+    '@nuxtjs/i18n'
+  ],
 
   devtools: {
     enabled: true
@@ -27,5 +31,17 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false
-  }
+  },
+
+  i18n: {
+    locales: ['en', 'nl'],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    },
+    defaultLocale: 'nl'
+  },
+
+  ssr: false,
 })

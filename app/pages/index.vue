@@ -33,25 +33,45 @@
         </div>
 
         <UTable
+          ref="table"
+          v-model:pagination="pagination"
           v-model:global-filter="globalFilter"
           :data="milkings ?? []"
           :columns="columns"
           :loading="status === 'pending'"
-          :ui="{
-            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-            th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r'
+          :pagination-options="{
+            getPaginationRowModel: getPaginationRowModel()
           }"
-          class="flex-1 !overflow-visible"
+          :ui="{
+            base: 'w-full min-w-xl',
+            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+            th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+            td: 'w-1/5'
+          }"
+          class="flex-1 !overflow-y-visible"
         />
+
+        <div class="flex justify-end border-t border-default py-4 px-4">
+          <UPagination
+            :page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="filteredCount"
+            @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+          />
+        </div>
       </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+import { getPaginationRowModel } from '@tanstack/vue-table'
+
 const supabase = useSupabaseClient()
 
 const globalFilter = ref('')
+const table = useTemplateRef('table')
+const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel().rows.length ?? 0)
 
 definePageMeta({
   layout: 'dashboard'
@@ -99,7 +119,7 @@ const { data: milkings, status } = useLazyAsyncData(
 const columns = [
   {
     accessorKey: 'cow_number',
-    header: 'Dier Nr.'
+    header: 'Nr.'
   },
   {
     accessorKey: 'name',
@@ -108,17 +128,22 @@ const columns = [
   {
     accessorKey: 'milk_weight_kg_session_1',
     header: '\'s ochtends',
-    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
   },
   {
     accessorKey: 'milk_weight_kg_session_2',
     header: '\'s avonds',
-    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
   },
   {
     accessorKey: 'milk_weight_kg',
     header: 'Totaal',
-    cell: ({ getValue }) => `${Number(getValue()).toFixed(2)} kg`
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
   }
 ]
+
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 50
+})
 </script>

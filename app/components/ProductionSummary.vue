@@ -1,12 +1,27 @@
 <template>
-  <UPageGrid>
-    <UPageCard title="Opbrengst in kg">
+  <UPageGrid :ui="{ base: 'gap-6' }">
+    <UPageCard
+      title="Opbrengst in kg"
+      icon="lucide:milk"
+      :ui="{
+        container: 'gap-y-1.5',
+        leading: 'p-2.5 rounded-full bg-primary/10 ring ring-inset ring-primary/25 flex-col',
+        title: 'font-normal text-muted text-xs uppercase'
+      }"
+    >
       <span class="text-2xl font-semibold text-highlighted">
-        {{ todayStats ? Number(todayStats.totalKg).toFixed(2) : '…' }} kg
+        {{ todayStats ? $n(todayStats.totalKg, 'single') : '…' }} kg
       </span>
     </UPageCard>
 
-    <UPageCard title="Aantal koeien">
+    <UPageCard
+      title="Aantal koeien"
+      icon="mdi:cow"
+      :ui="{
+        container: 'gap-y-1.5',
+        leading: 'p-2.5 rounded-full bg-green-500/10 ring ring-inset ring-green-500/25 flex-col',
+        title: 'font-normal text-muted text-xs uppercase'
+      }">
       <span class="text-2xl font-semibold text-highlighted">
         {{ todayStats ? todayStats.cowCount : '…' }}
       </span>
