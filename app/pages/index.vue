@@ -15,25 +15,22 @@
     </template>
 
     <template #body>
-      <UPageGrid>
-        <UPageCard title="Opbrengst in kg">
-          <span class="text-2xl font-semibold text-highlighted">
-            {{ todayStats ? Number(todayStats.totalKg).toFixed(2) : '…' }} kg
-          </span>
-        </UPageCard>
+      <ProductionSummary
+        :today="today"
+        :tomorrow="tomorrow"
+      />
 
-        <UPageCard title="Aantal koeien">
-          <span class="text-2xl font-semibold text-highlighted">
-            {{ todayStats ? todayStats.cowCount : '…' }}
-          </span>
-        </UPageCard>
-      </UPageGrid>
+      <!-- <HomeChart /> -->
 
       <UTable
         :data="milkings ?? []"
         :columns="columns"
         :loading="status === 'pending'"
-        class="flex-1 mt-10"
+        :ui="{
+          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
+          th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r'
+        }"
+        class="flex-1 mt-10 !overflow-visible"
       />
     </template>
   </UDashboardPanel>
@@ -65,24 +62,14 @@ const { data: milkings, status } = useLazyAsyncData(
   { watch: [today] }
 )
 
-const { data: todayStats } = useLazyAsyncData(
-  'milkings-today-kg',
-  () => supabase
-    .from('milkings')
-    .select('milk_weight_kg, cow_number')
-    .gte('milked_at', today.value.toISOString())
-    .lt('milked_at', tomorrow.value.toISOString())
-    .then(({ data }) => ({
-      totalKg: data?.reduce((sum, r) => sum + r.milk_weight_kg, 0) ?? 0,
-      cowCount: new Set(data?.map(r => r.cow_number)).size
-    })),
-  { watch: [today] }
-)
-
 const columns = [
   {
     accessorKey: 'cow_number',
     header: 'Dier Nr.'
+  },
+  {
+    accessorKey: 'cows.name',
+    header: 'Naam'
   },
   {
     accessorKey: 'milk_weight_kg',
