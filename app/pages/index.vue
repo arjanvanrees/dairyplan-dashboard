@@ -20,8 +20,6 @@
         :tomorrow="tomorrow"
       />
 
-      <!-- <HomeChart /> -->
-
       <div class="ring ring-default rounded-lg">
         <div class="flex px-4 py-3.5">
           <UInput
@@ -74,7 +72,12 @@ const table = useTemplateRef('table')
 const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel().rows.length ?? 0)
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: 'auth'
+})
+
+useHead({
+  title: 'Dagproductie - DairyPlan Dashboard'
 })
 
 const today = ref(new Date())
