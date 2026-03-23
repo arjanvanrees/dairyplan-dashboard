@@ -47,6 +47,7 @@ const logout = async () => {
 }
 
 const items = [
+  { label: 'Koeien', icon: 'mdi:cow', to: '/koeien' },
   { label: 'Dagproductie', icon: 'i-heroicons-chart-bar-20-solid', to: '/' }
 ]
 

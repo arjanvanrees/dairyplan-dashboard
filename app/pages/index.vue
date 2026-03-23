@@ -27,7 +27,20 @@
             class="max-w-sm"
             placeholder="Filter..."
             icon="eva:search-outline"
-          />
+          >
+            <template v-if="globalFilter?.length" #trailing>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                icon="i-lucide-circle-x"
+                aria-label="Clear input"
+                @click="globalFilter = ''"
+              />
+            </template>
+          </UInput>
+
+          <span class="text-sm text-muted">{{ $t('koe', filteredCount) }}</span>
         </div>
 
         <UTable
@@ -52,6 +65,8 @@
 const supabase = useSupabaseClient()
 
 const globalFilter = ref('')
+const table = useTemplateRef('table')
+const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel().rows.length ?? 0)
 
 definePageMeta({
   layout: 'dashboard',
@@ -74,7 +89,7 @@ const { data: milkings, status } = useLazyAsyncData(
   'milkings-today',
   () => supabase
     .from('milkings')
-    .select('cow_number, milk_weight_kg, milked_at, cows!inner(name)')
+    .select('cow_number, milk_weight_kg, milked_at, cows(name)')
     .gte('milked_at', today.value.toISOString())
     .lt('milked_at', tomorrow.value.toISOString())
     .order('milked_at', { ascending: true })
@@ -113,17 +128,17 @@ const columns = [
   {
     accessorKey: 'milk_weight_kg_session_1',
     header: '\'s ochtends',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + ' kg' }
   },
   {
     accessorKey: 'milk_weight_kg_session_2',
     header: '\'s avonds',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + ' kg' }
   },
   {
     accessorKey: 'milk_weight_kg',
     header: 'Totaal',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+    cell: ({ getValue }) => { return $n(getValue(), 'single') + ' kg' }
   }
 ]
 </script>

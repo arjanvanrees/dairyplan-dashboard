@@ -24,7 +24,7 @@ export default defineNuxtConfig({
   supabase: {},
 
   i18n: {
-    locales: ['en', 'nl'],
+    locales: ['nl'],
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',

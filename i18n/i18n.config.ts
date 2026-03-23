@@ -2,7 +2,7 @@ export default defineI18nConfig(() => ({
   legacy: false,
   messages: {
     nl: {
-      dashboard: 'Dashboard'
+      koe: '{count} koe | {count} koeien'
     }
   },
   numberFormats: {
