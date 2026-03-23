@@ -8,10 +8,6 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n'
   ],
 
-  devtools: {
-    enabled: true
-  },
-
   css: ['~/assets/css/main.css'],
 
   routeRules: {
