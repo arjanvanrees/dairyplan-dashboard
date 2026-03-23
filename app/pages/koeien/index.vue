@@ -45,7 +45,13 @@
             td: 'w-1/6'
           }"
           class="flex-1 !overflow-y-visible"
-        />
+        >
+          <template #cow_number-cell="{ row }">
+            <NuxtLink :to="`/koeien/${row.original.cow_number}`" class="text-primary hover:underline">
+              {{ row.original.cow_number }}
+            </NuxtLink>
+          </template>
+        </UTable>
       </div>
     </template>
   </UDashboardPanel>
@@ -61,7 +67,7 @@ const globalFilter = ref('')
 
 definePageMeta({
   layout: 'dashboard',
-  middleware: ['auth']
+  // middleware: ['auth']
 })
 
 useHead({

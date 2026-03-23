@@ -17,7 +17,7 @@
   --color-green-950: #052E16;
 }
 
-:root {
+/* :root {
   --vis-color0: oklch(0.72 0.192 149.58) !important;
   --vis-color1: oklch(0.63 0.1963 157.86) !important;
 
@@ -38,4 +38,4 @@
 
   --vis-axis-label-color: rgba(255, 255, 255, 0.5) !important;
   --vis-legend-label-color: rgba(255, 255, 255, 0.5) !important;
-}
+} */
