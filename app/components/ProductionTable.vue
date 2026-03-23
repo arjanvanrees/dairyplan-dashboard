@@ -29,6 +29,7 @@ const { data: dailyProduction } = useLazyAsyncData(
       from_date: thirtyDaysAgo.toISOString(),
       to_date: new Date().toISOString()
     })
+      .order('day', { ascending: true })
 
     if (error) {
       console.error('[daily-production] error:', error)

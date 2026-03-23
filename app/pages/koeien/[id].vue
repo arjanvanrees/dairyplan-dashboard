@@ -25,7 +25,7 @@
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">Geboortedatum</h3>
-            <p class="text-lg font-semibold">{{ cow?.birth_date ?? '…' }}</p>
+            <p class="text-lg font-semibold">{{ cow?.birth_date ? $d(new Date(cow.birth_date), 'short', 'nl') : '…' }}</p>
           </div>
         </div>
       </UPageCard>
@@ -34,7 +34,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div>
             <h3 class="text-sm font-medium text-muted">Laatste kalf</h3>
-            <p class="text-lg font-semibold">{{ cow?.calving_date ?? '…' }}</p>
+            <p class="text-lg font-semibold">{{ cow?.calving_date ? $d(new Date(cow.calving_date), 'short', 'nl') : '…' }}</p>
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">Dagen in lactatie</h3>
@@ -51,7 +51,7 @@
         </div>
       </UPageCard>
 
-      <UPageCard title="Productie laatste 7 dagen">
+      <UPageCard title="Productie laatste 30 dagen">
         <AreaChart
           :data="chartData ?? []"
           :categories="categories"
@@ -67,23 +67,23 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div>
             <h3 class="text-sm font-medium text-muted">Datum</h3>
-            <p class="text-lg font-semibold">{{ lastMilkTest?.test_date ?? '\u2026' }}</p>
+            <p class="text-lg font-semibold">{{ lastMilkTest?.test_date ? $d(new Date(lastMilkTest.test_date), 'short', 'nl') : '…' }}</p>
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">Vet %</h3>
-            <p class="text-lg font-semibold">{{ lastMilkTest ? $n(Number(lastMilkTest.fat_pct), 'single') + ' %' : '\u2026' }}</p>
+            <p class="text-lg font-semibold">{{ lastMilkTest ? $n(Number(lastMilkTest.fat_pct), 'single') + ' %' : '…' }}</p>
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">Eiwit %</h3>
-            <p class="text-lg font-semibold">{{ lastMilkTest ? $n(Number(lastMilkTest.protein_pct), 'single') + ' %' : '\u2026' }}</p>
+            <p class="text-lg font-semibold">{{ lastMilkTest ? $n(Number(lastMilkTest.protein_pct), 'single') + ' %' : '…' }}</p>
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">Celgetal</h3>
-            <p class="text-lg font-semibold">{{ lastMilkTest?.scc ?? '\u2026' }}</p>
+            <p class="text-lg font-semibold">{{ lastMilkTest?.scc ?? '…' }}</p>
           </div>
           <div>
             <h3 class="text-sm font-medium text-muted">MUN</h3>
-            <p class="text-lg font-semibold">{{ lastMilkTest?.mun ?? '\u2026' }}</p>
+            <p class="text-lg font-semibold">{{ lastMilkTest?.mun ?? '…' }}</p>
           </div>
         </div>
       </UPageCard>
@@ -138,9 +138,9 @@ const daysSinceCalving = computed(() => {
   return Math.floor((today - calving) / (1000 * 60 * 60 * 24))
 })
 
-const oneWeekAgo = new Date()
-oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-oneWeekAgo.setHours(0, 0, 0, 0)
+const oneMonthAgo = new Date()
+oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
+oneMonthAgo.setHours(0, 0, 0, 0)
 
 const { data: milkings, status } = useLazyAsyncData(
   `milkings-cow-${cowNumber}`,
@@ -149,7 +149,7 @@ const { data: milkings, status } = useLazyAsyncData(
       .from('milkings')
       .select('id, milked_at, milk_weight_kg, responder')
       .eq('cow_number', cowNumber)
-      .gte('milked_at', oneWeekAgo.toISOString())
+      .gte('milked_at', oneMonthAgo.toISOString())
       .order('milked_at', { ascending: true })
     if (error) { console.error('[milkings] error:', error); return [] }
     return data ?? []

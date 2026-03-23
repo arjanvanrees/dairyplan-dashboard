@@ -107,7 +107,8 @@ const columns = [
   },
   {
     accessorKey: 'calving_date',
-    header: 'Afkalfdatum'
+    header: 'Afkalfdatum',
+    cell: ({ getValue }) => $d(new Date(getValue()), 'short', 'nl')
   },
   {
     accessorKey: 'status_code',
