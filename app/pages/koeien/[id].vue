@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Koeien">
+      <UDashboardNavbar :title="pageTitle">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -52,7 +52,7 @@
       </UPageCard>
 
       <UPageCard title="Productie laatste 7 dagen">
-        <LineChart
+        <AreaChart
           :data="chartData ?? []"
           :categories="categories"
           :height="300"
@@ -78,11 +78,11 @@
             <p class="text-lg font-semibold">{{ lastMilkTest ? $n(Number(lastMilkTest.protein_pct), 'single') + ' %' : '\u2026' }}</p>
           </div>
           <div>
-            <h3 class="text-sm font-medium text-muted">Somatic Cell Count</h3>
+            <h3 class="text-sm font-medium text-muted">Celgetal</h3>
             <p class="text-lg font-semibold">{{ lastMilkTest?.scc ?? '\u2026' }}</p>
           </div>
           <div>
-            <h3 class="text-sm font-medium text-muted">Milk-Urea-Nitrogen</h3>
+            <h3 class="text-sm font-medium text-muted">MUN</h3>
             <p class="text-lg font-semibold">{{ lastMilkTest?.mun ?? '\u2026' }}</p>
           </div>
         </div>
@@ -98,11 +98,7 @@ const cowNumber = Number(route.params.id)
 
 definePageMeta({
   layout: 'dashboard',
-  // middleware: ['auth']
-})
-
-useHead({
-  title: 'Koeien - DairyPlan Dashboard'
+  middleware: ['auth']
 })
 
 const { getLabel: getCowStatusLabel } = useCowStatus()
@@ -186,4 +182,13 @@ const categories = {
 const xFormatter = (tick, _i, _ticks) => {
   return chartData.value?.[tick]?.day ?? ''
 }
+
+const pageTitle = computed(() => {
+  if (!cow.value) return 'Koeien'
+  return cow.value.name ? `${cow.value.cow_number} - ${cow.value.name}` : `${cow.value.cow_number}`
+})
+
+useSeoMeta({
+  title: () => `${pageTitle.value} - DairyPlan Dashboard`
+})
 </script>

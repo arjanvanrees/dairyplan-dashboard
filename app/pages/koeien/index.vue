@@ -67,7 +67,7 @@ const globalFilter = ref('')
 
 definePageMeta({
   layout: 'dashboard',
-  // middleware: ['auth']
+  middleware: ['auth']
 })
 
 useHead({
