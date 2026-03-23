@@ -16,8 +16,8 @@
 
     <template #body>
       <ProductionSummary
-        :today="today"
-        :tomorrow="tomorrow"
+        :from-date="today"
+        :to-date="tomorrow"
       />
 
       <div class="ring ring-default rounded-lg">

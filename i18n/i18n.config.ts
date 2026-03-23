@@ -1,5 +1,12 @@
 export default defineI18nConfig(() => ({
   legacy: false,
+  datetimeFormats: {
+    nl: {
+      short: {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }
+    }
+  },
   messages: {
     nl: {
       koe: '{count} koe | {count} koeien'
