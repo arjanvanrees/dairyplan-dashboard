@@ -21,16 +21,17 @@
       />
 
       <div class="ring ring-default rounded-lg">
-        <!-- <div class="flex px-4 py-3.5">
+        <div class="flex px-4 py-3.5">
           <UInput
             v-model="globalFilter"
             class="max-w-sm"
             placeholder="Filter..."
             icon="eva:search-outline"
           />
-        </div> -->
+        </div>
 
         <UTable
+          v-model:global-filter="globalFilter"
           :data="milkings ?? []"
           :columns="columns"
           :loading="status === 'pending'"
@@ -49,6 +50,8 @@
 
 <script setup>
 const supabase = useSupabaseClient()
+
+const globalFilter = ref('')
 
 definePageMeta({
   layout: 'dashboard',
