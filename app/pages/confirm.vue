@@ -2,7 +2,7 @@
 const user = useSupabaseUser()
 
 definePageMeta({
-  layout: 'admin',
+  layout: 'login',
 })
 
 watch(user, () => {

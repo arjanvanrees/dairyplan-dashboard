@@ -10,10 +10,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
-  },
-
   compatibilityDate: '2025-01-15',
 
   eslint: {
@@ -28,7 +24,8 @@ export default defineNuxtConfig({
   supabase: {
     redirectOptions: {
       login: '/login',
-      callback: '/confirm'
+      callback: '/confirm',
+      exclude: ['/confirm']
     }
   },
 
