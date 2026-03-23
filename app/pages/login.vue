@@ -29,11 +29,11 @@ definePageMeta({
   layout: 'login'
 })
 
-// watchEffect(() => {
-//   if (user.value) {
-//     return navigateTo('/')
-//   }
-// })
+watchEffect(() => {
+  if (user.value) {
+    return navigateTo('/')
+  }
+})
 
 const fields: AuthFormField[] = [{
   name: 'email',

@@ -21,13 +21,7 @@ export default defineNuxtConfig({
     }
   },
 
-  supabase: {
-    redirectOptions: {
-      login: '/login',
-      callback: '/confirm',
-      exclude: ['/confirm']
-    }
-  },
+  supabase: {},
 
   i18n: {
     locales: ['en', 'nl'],
