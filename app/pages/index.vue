@@ -15,7 +15,7 @@
     </template>
 
     <template #body>
-      <ProductionSummary
+      <!-- <ProductionSummary
         :today="today"
         :tomorrow="tomorrow"
       />
@@ -57,7 +57,7 @@
             @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
           />
         </div>
-      </div>
+      </div> -->
     </template>
   </UDashboardPanel>
 </template>
@@ -87,65 +87,65 @@ const tomorrow = computed(() => {
   return d
 })
 
-const { data: milkings, status } = useLazyAsyncData(
-  'milkings-today',
-  () => supabase
-    .from('milkings')
-    .select('cow_number, milk_weight_kg, milked_at, cows!inner(name)')
-    .gte('milked_at', today.value.toISOString())
-    .lt('milked_at', tomorrow.value.toISOString())
-    .order('milked_at', { ascending: true })
-    .then(({ data }) => {
-      const byCoW = (data ?? []).reduce((acc, row) => {
-        if (!acc[row.cow_number]) {
-          acc[row.cow_number] = {
-            cow_number: row.cow_number,
-            name: row.cows?.name ?? null,
-            milk_weight_kg: 0,
-            milk_weight_kg_session_1: 0,
-            milk_weight_kg_session_2: 0,
-            sessions: 0
-          }
-        }
-        const cow = acc[row.cow_number]
-        cow[`milk_weight_kg_session_${cow.sessions + 1}`] += row.milk_weight_kg
-        cow.milk_weight_kg += row.milk_weight_kg
-        cow.sessions += 1
-        return acc
-      }, {})
-      return Object.values(byCoW).sort((a, b) => a.cow_number - b.cow_number)
-    }),
-  { watch: [today] }
-)
+// const { data: milkings, status } = useLazyAsyncData(
+//   'milkings-today',
+//   () => supabase
+//     .from('milkings')
+//     .select('cow_number, milk_weight_kg, milked_at, cows!inner(name)')
+//     .gte('milked_at', today.value.toISOString())
+//     .lt('milked_at', tomorrow.value.toISOString())
+//     .order('milked_at', { ascending: true })
+//     .then(({ data }) => {
+//       const byCoW = (data ?? []).reduce((acc, row) => {
+//         if (!acc[row.cow_number]) {
+//           acc[row.cow_number] = {
+//             cow_number: row.cow_number,
+//             name: row.cows?.name ?? null,
+//             milk_weight_kg: 0,
+//             milk_weight_kg_session_1: 0,
+//             milk_weight_kg_session_2: 0,
+//             sessions: 0
+//           }
+//         }
+//         const cow = acc[row.cow_number]
+//         cow[`milk_weight_kg_session_${cow.sessions + 1}`] += row.milk_weight_kg
+//         cow.milk_weight_kg += row.milk_weight_kg
+//         cow.sessions += 1
+//         return acc
+//       }, {})
+//       return Object.values(byCoW).sort((a, b) => a.cow_number - b.cow_number)
+//     }),
+//   { watch: [today] }
+// )
 
-const columns = [
-  {
-    accessorKey: 'cow_number',
-    header: 'Nr.'
-  },
-  {
-    accessorKey: 'name',
-    header: 'Naam'
-  },
-  {
-    accessorKey: 'milk_weight_kg_session_1',
-    header: '\'s ochtends',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
-  },
-  {
-    accessorKey: 'milk_weight_kg_session_2',
-    header: '\'s avonds',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
-  },
-  {
-    accessorKey: 'milk_weight_kg',
-    header: 'Totaal',
-    cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
-  }
-]
+// const columns = [
+//   {
+//     accessorKey: 'cow_number',
+//     header: 'Nr.'
+//   },
+//   {
+//     accessorKey: 'name',
+//     header: 'Naam'
+//   },
+//   {
+//     accessorKey: 'milk_weight_kg_session_1',
+//     header: '\'s ochtends',
+//     cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+//   },
+//   {
+//     accessorKey: 'milk_weight_kg_session_2',
+//     header: '\'s avonds',
+//     cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+//   },
+//   {
+//     accessorKey: 'milk_weight_kg',
+//     header: 'Totaal',
+//     cell: ({ getValue }) => { return $n(getValue(), 'single') + 'kg' }
+//   }
+// ]
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 50
-})
+// const pagination = ref({
+//   pageIndex: 0,
+//   pageSize: 50
+// })
 </script>
