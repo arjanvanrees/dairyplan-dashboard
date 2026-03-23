@@ -15,12 +15,12 @@
     </template>
 
     <template #body>
-      <!-- <ProductionSummary
+      <ProductionSummary
         :today="today"
         :tomorrow="tomorrow"
       />
 
-      <div class="ring ring-default rounded-lg">
+      <!-- <div class="ring ring-default rounded-lg">
         <div class="flex px-4 py-3.5">
           <UInput
             v-model="globalFilter"
@@ -72,7 +72,8 @@ const table = useTemplateRef('table')
 const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel().rows.length ?? 0)
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: ['auth']
 })
 
 useHead({

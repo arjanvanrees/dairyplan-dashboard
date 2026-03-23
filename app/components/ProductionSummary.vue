@@ -57,7 +57,3 @@ const { data: todayStats } = useLazyAsyncData(
   { watch: [() => props.today] }
 )
 </script>
-
-<style>
-
-</style>
