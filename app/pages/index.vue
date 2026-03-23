@@ -72,8 +72,7 @@ const table = useTemplateRef('table')
 const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel().rows.length ?? 0)
 
 definePageMeta({
-  layout: 'dashboard',
-  middleware: 'auth'
+  layout: 'dashboard'
 })
 
 useHead({

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 const user = useSupabaseUser()
 
+definePageMeta({
+  layout: 'admin',
+})
+
 watch(user, () => {
   if (user.value) {
+    // Redirect to protected page
     return navigateTo('/')
   }
 }, { immediate: true })
