@@ -9,6 +9,8 @@
     </template>
 
     <template #body>
+      <AnimalSummary />
+
       <div class="ring ring-default rounded-lg">
         <div class="flex items-center gap-4 px-4 py-3.5">
           <UInput
