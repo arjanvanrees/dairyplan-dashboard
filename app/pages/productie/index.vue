@@ -40,7 +40,7 @@
             </template>
           </UInput>
 
-          <span class="text-sm text-muted">{{ $t('koe', filteredCount) }}</span>
+          <span class="text-sm text-muted">{{ $t('dier', filteredCount) }}</span>
         </div>
 
         <UTable

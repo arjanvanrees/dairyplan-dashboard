@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Koeien">
+      <UDashboardNavbar title="Dieren">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -29,7 +29,7 @@
             </template>
           </UInput>
 
-          <span class="text-sm text-muted">{{ $t('koe', filteredCount) }}</span>
+          <span class="text-sm text-muted">{{ $t('dier', filteredCount) }}</span>
         </div>
 
         <UTable
@@ -47,7 +47,7 @@
           class="flex-1 !overflow-y-visible"
         >
           <template #cow_number-cell="{ row }">
-            <NuxtLink :to="`/koeien/${row.original.cow_number}`" class="text-primary hover:underline">
+            <NuxtLink :to="`/dieren/${row.original.cow_number}`" class="text-primary hover:underline">
               {{ row.original.cow_number }}
             </NuxtLink>
           </template>
@@ -71,7 +71,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Koeien - DairyPlan Dashboard'
+  title: 'dieren - DairyPlan Dashboard'
 })
 
 const { getLabel: getCowStatusLabel } = useCowStatus()

@@ -18,18 +18,19 @@
 <script setup>
 const supabase = useSupabaseClient()
 
-const thirtyDaysAgo = new Date()
-thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
-thirtyDaysAgo.setHours(0, 0, 0, 0)
+const props = defineProps({
+  fromDate: { type: Date, required: true },
+  toDate: { type: Date, required: true }
+})
 
-const { data: dailyProduction } = useLazyAsyncData(
-  'daily-production',
+const { data: dailyProduction, status } = useLazyAsyncData(
+  'daily-production-table',
   async () => {
     const { data, error } = await supabase.rpc('daily_milk_production', {
-      from_date: thirtyDaysAgo.toISOString(),
-      to_date: new Date().toISOString()
+      from_date: props.fromDate.toISOString(),
+      to_date: props.toDate.toISOString()
     })
-      .order('day', { ascending: true })
+      .order('day', { ascending: false })
 
     if (error) {
       console.error('[daily-production] error:', error)
@@ -37,7 +38,8 @@ const { data: dailyProduction } = useLazyAsyncData(
     }
 
     return data ?? []
-  }
+  },
+  { watch: [() => props.fromDate, () => props.toDate] }
 )
 
 const columns = [
@@ -53,7 +55,7 @@ const columns = [
   },
   {
     accessorKey: 'cow_count',
-    header: 'Aantal koeien'
+    header: 'Aantal dieren'
   }
 ]
 </script>

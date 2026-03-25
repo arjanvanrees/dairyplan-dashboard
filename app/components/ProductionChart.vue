@@ -15,20 +15,25 @@
 <script setup>
 const supabase = useSupabaseClient()
 
-const thirtyDaysAgo = new Date()
-thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
-thirtyDaysAgo.setHours(0, 0, 0, 0)
+const props = defineProps({
+  fromDate: { type: Date, required: true },
+  toDate: { type: Date, required: true }
+})
 
 const { data: dailyProduction } = useLazyAsyncData(
-  'daily-production',
+  'daily-production-chart',
   async () => {
     const { data, error } = await supabase.rpc('daily_milk_production', {
-      from_date: thirtyDaysAgo.toISOString(),
-      to_date: new Date().toISOString()
+      from_date: props.fromDate.toISOString(),
+      to_date: props.toDate.toISOString()
     })
-    if (error) { console.error('[daily-production] error:', error); return [] }
+    if (error) {
+      console.error('[daily-production] error:', error)
+      return []
+    }
     return data ?? []
-  }
+  },
+  { watch: [() => props.fromDate, () => props.toDate] }
 )
 
 const dailyChartData = computed(() =>
@@ -42,6 +47,6 @@ const dailyCategories = {
   production: { name: 'Productie (kg)', color: '#22c55e' }
 }
 
-const dailyXFormatter = (tick) =>
+const dailyXFormatter = tick =>
   dailyChartData.value?.[tick]?.day ?? ''
 </script>

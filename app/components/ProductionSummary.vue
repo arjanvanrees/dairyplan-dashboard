@@ -11,12 +11,12 @@
     </UPageCard>
 
     <UPageCard
-      title="Aantal koeien"
+      title="Aantal dieren"
       icon="mdi:cow"
       :ui="ui"
     >
       <span class="text-2xl font-semibold text-highlighted">
-        {{ todayStats ? todayStats.cowCount : '…' }}
+        {{ todayStats ? todayStats.cowMin === todayStats.cowMax ? todayStats.cowMin : `${todayStats.cowMin}–${todayStats.cowMax}` : '…' }}
       </span>
     </UPageCard>
   </UPageGrid>
@@ -38,15 +38,18 @@ const props = defineProps({
 
 const { data: todayStats } = useLazyAsyncData(
   'today-stats-' + props.fromDate.toISOString(),
-  () => supabase
-    .from('milkings')
-    .select('milk_weight_kg, cow_number')
-    .gte('milked_at', props.fromDate.toISOString())
-    .lt('milked_at', props.toDate.toISOString())
-    .then(({ data }) => ({
-      totalKg: data?.reduce((sum, r) => sum + r.milk_weight_kg, 0) ?? 0,
-      cowCount: new Set(data?.map(r => r.cow_number)).size
-    })),
+  async () => {
+    const { data, error } = await supabase.rpc('daily_milk_production', {
+      from_date: props.fromDate.toISOString(),
+      to_date: props.toDate.toISOString()
+    })
+    if (error || !data?.length) return { totalKg: 0, cowMin: 0, cowMax: 0 }
+    return {
+      totalKg: data.reduce((sum, r) => sum + r.total_kg, 0),
+      cowMin: Math.min(...data.map(r => r.cow_count)),
+      cowMax: Math.max(...data.map(r => r.cow_count))
+    }
+  },
   { watch: [() => props.fromDate, () => props.toDate] }
 )
 

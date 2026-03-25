@@ -9,7 +9,7 @@ export default defineI18nConfig(() => ({
   },
   messages: {
     nl: {
-      koe: '{count} koe | {count} koeien'
+      dier: '{count} dier | {count} dieren'
     }
   },
   numberFormats: {

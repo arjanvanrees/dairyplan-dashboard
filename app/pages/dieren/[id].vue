@@ -184,7 +184,7 @@ const xFormatter = (tick, _i, _ticks) => {
 }
 
 const pageTitle = computed(() => {
-  if (!cow.value) return 'Koeien'
+  if (!cow.value) return 'dieren'
   return cow.value.name ? `${cow.value.cow_number} - ${cow.value.name}` : `${cow.value.cow_number}`
 })
 
