@@ -57,14 +57,6 @@ const toDate = computed(() => {
   return d
 })
 
-const df = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
-
-const rangeLabel = computed(() => {
-  const { start, end } = dateRange.value
-  if (start.toDateString() === end.toDateString()) return df.format(start)
-  return `${df.format(start)} – ${df.format(end)}`
-})
-
 definePageMeta({
   layout: 'dashboard',
   middleware: ['auth']
