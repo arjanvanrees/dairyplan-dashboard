@@ -30,11 +30,20 @@
               />
             </UChatReasoning>
 
-            <UChatTool
-              v-else-if="isToolUIPart(part)"
-              :text="getToolName(part)"
-              :streaming="isToolStreaming(part)"
-            />
+            <template v-else-if="isToolUIPart(part)">
+              <UChatTool
+                :text="getToolName(part)"
+                :streaming="isToolStreaming(part)"
+              />
+              <!-- {{ part }} -->
+              <pre>
+                {{ JSON.stringify(part.output, null, 2) }}
+              </pre>
+              <!-- <pre
+                v-if="part.toolInvocation.state === 'output-available'"
+                class="mt-1 overflow-x-auto rounded bg-gray-100 p-3 text-sm dark:bg-gray-800"
+              >{{ JSON.stringify(part.toolInvocation.output, null, 2) }}</pre> -->
+            </template>
 
             <MDC
               v-if="isTextUIPart(part)"

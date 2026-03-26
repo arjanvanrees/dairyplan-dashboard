@@ -50,7 +50,7 @@ const items = [
   { label: 'Dashboard', icon: 'i-heroicons-home-20-solid', to: '/' },
   { label: 'Dieren', icon: 'mdi:cow', to: '/dieren' },
   { label: 'Productie', icon: 'i-heroicons-chart-bar-20-solid', to: '/productie' },
-  { label: 'Chat', icon: 'i-heroicons-chat-bubble-20-solid', to: '/chat' }
+  { label: 'Chat', icon: 'i-heroicons-chat-bubble-oval-left-solid', to: '/chat' }
 ]
 
 const userDropdownItems = [
