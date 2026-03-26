@@ -57,6 +57,7 @@
 
       <UChatPrompt
         v-model="input"
+        class="sticky bottom-4"
         :error="chat.error"
         @submit="onSubmit"
       >
