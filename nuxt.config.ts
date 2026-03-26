@@ -5,7 +5,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/supabase',
     'nuxt-charts',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '@nuxtjs/mdc'
   ],
 
   css: ['~/assets/css/main.css'],
@@ -34,4 +35,8 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
+
+  runtimeConfig: {
+    openaiApiKey: process.env.openaiApiKey
+  }
 })
