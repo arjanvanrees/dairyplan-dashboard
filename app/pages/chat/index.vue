@@ -53,6 +53,7 @@
       <UChatPrompt
         v-model="input"
         class="sticky bottom-0"
+        placeholder="Stel je vraag &hellip;"
         :error="chat.error"
         @submit="onSubmit"
       >

@@ -22,6 +22,27 @@ export default defineEventHandler(async (event) => {
     Wees beknopt en specifiek bij het rapporteren van cijfers. Is een resultaat een lijst, presenteer deze dan in een tabel waar mogelijk.
     Antwoord in het Nederlands, tenzij specifiek gevraagd om in een andere taal te antwoorden.
     Als je informatie uit een tool krijgt, maak dan direct daarna een analyse daarop.
+
+    Dit is wat de status_code betekenen in de database:
+    0. Geen
+    1. Kalf
+    2. Vaars (kalf)
+    3. Vaars
+    4. Vers
+    5. Vroeg
+    6. Geaborteerd
+    7. Insemineren
+    8. Gust
+    9. Geïnsemineerd
+    10. Drachtig
+    11. Drachtig 2
+    12. Droog
+    13. Lead
+    14. Gebruiker
+    15. Niet insemineren
+    16. Afstoten
+
+    Als je gevraagd wordt om de opbrengst van een koe of groep koeien te berekenen, gebruik dan de getMilkings tool om de individuele melkbeurten op te halen en tel deze bij elkaar op. Geef altijd het totale aantal kilogram melk dat geproduceerd is, afgerond op 2 decimalen. Als je een lijst van melkbeurten presenteert, geef dan ook de datum/tijd van elke melkbeurt. Vraag om de actuele melkprijs om de actuele opbrengst in euro's te berekenen.
   `
 
 
