@@ -68,7 +68,6 @@
 </template>
 
 <script setup lang="ts">
-import type { UIMessage } from 'ai'
 import { isReasoningUIPart, isTextUIPart, isToolUIPart, getToolName, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { Chat } from '@ai-sdk/vue'
 import { isReasoningStreaming, isToolStreaming } from '@nuxt/ui/utils/ai'
@@ -77,7 +76,6 @@ import { ref } from 'vue'
 
 const input = ref('')
 const chat = new Chat({
-  // Automatically submit when all tool results are available
   sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls
 })
 
