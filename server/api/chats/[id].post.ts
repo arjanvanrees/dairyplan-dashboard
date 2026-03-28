@@ -1,21 +1,28 @@
-import { streamText, convertToModelMessages, stepCountIs } from 'ai'
+import { createUIMessageStream, streamText, convertToModelMessages, stepCountIs, createUIMessageStreamResponse } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '../../app/types/database.types'
+import { serverSupabaseClient } from '#supabase/server'
+import type { Database } from '../../../app/types/database.types'
 
-import { getCowInfo } from '../utils/getCowinfo'
-import { getMilkings } from '../utils/getMilkings'
-import { getMilkTests } from '../utils/getMilkTests'
-import { getTopProducers } from '../utils/getTopProducers'
+import { getCowInfo } from '../../utils/getCowinfo'
+import { getMilkings } from '../../utils/getMilkings'
+import { getMilkTests } from '../../utils/getMilkTests'
+import { getTopProducers } from '../../utils/getTopProducers'
+
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+  const supabase = await serverSupabaseClient<Database>(event)
+
+  const { id } = await getValidatedRouterParams(event, z.object({
+    id: z.string()
+  }).parse)
+
   const openai = createOpenAI({
     apiKey: useRuntimeConfig().openaiApiKey
   })
 
   const { messages } = await readBody(event)
-  const supabase = serverSupabaseServiceRole<Database>(event)
   const today = new Date().toISOString().split('T')[0]
 
   const system = `
@@ -50,17 +57,48 @@ export default defineEventHandler(async (event) => {
     Als je gevraagd wordt om de opbrengst van een koe of groep koeien te berekenen, gebruik dan de getMilkings tool om de individuele melkbeurten op te halen en tel deze bij elkaar op. Geef altijd het totale aantal kilogram melk dat geproduceerd is, afgerond op 2 decimalen. Als je een lijst van melkbeurten presenteert, geef dan ook de datum/tijd van elke melkbeurt. Vraag om de actuele melkprijs om de actuele opbrengst in euro's te berekenen.
   `
 
-  return streamText({
-    model: openai('gpt-5.1'),
-    maxOutputTokens: 10000,
-    stopWhen: stepCountIs(5),
-    system: system,
-    messages: await convertToModelMessages(messages),
-    tools: {
-      getCowInfo: getCowInfo(supabase),
-      getMilkings: getMilkings(supabase),
-      getMilkTests: getMilkTests(supabase),
-      getTopProducers: getTopProducers(supabase)
+  const lastMessage = messages[messages.length - 1]
+  if (lastMessage?.role === 'user' && messages.length > 1) {
+    await supabase.from('messages').insert({
+      chat_id: id,
+      role: 'user',
+      parts: lastMessage.parts
+    })
+  }
+
+  const stream = createUIMessageStream({
+    execute: async ({ writer }) => {
+      const result = streamText({
+        model: openai('gpt-5.4'),
+        maxOutputTokens: 10000,
+        stopWhen: stepCountIs(5),
+        system: system,
+        messages: await convertToModelMessages(messages),
+        tools: {
+          getCowInfo: getCowInfo(supabase),
+          getMilkings: getMilkings(supabase),
+          getMilkTests: getMilkTests(supabase),
+          getTopProducers: getTopProducers(supabase)
+        }
+      })
+
+      writer.merge(result.toUIMessageStream({
+        sendReasoning: true
+      }))
+    },
+    onFinish: async ({ messages }) => {
+      await supabase.from('messages').insert(
+        messages.map(message => ({
+          chat_id: id,
+          role: message.role as 'user' | 'assistant',
+          parts: message.parts
+        }))
+      )
     }
-  }).toUIMessageStreamResponse()
+  })
+
+  return createUIMessageStreamResponse({
+    stream
+  })
 })
+

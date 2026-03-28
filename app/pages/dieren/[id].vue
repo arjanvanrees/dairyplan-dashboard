@@ -111,7 +111,12 @@ const { data: cow } = useLazyAsyncData(
       .select('cow_number, name, responder, group_number, birth_date, calving_date, registration_number, status_code, lact_no')
       .eq('cow_number', cowNumber)
       .single()
-    if (error) { console.error('[cow] error:', error); return null }
+
+    if (error) {
+      console.error('[cow] error:', error)
+      return null
+    }
+
     return data
   }
 )
@@ -126,7 +131,12 @@ const { data: lastMilkTest } = useLazyAsyncData(
       .order('test_date', { ascending: false })
       .limit(1)
       .single()
-    if (error) { console.error('[milk_test] error:', error); return null }
+
+    if (error) {
+      console.error('[milk_test] error:', error)
+      return null
+    }
+
     return data
   }
 )
@@ -151,7 +161,12 @@ const { data: milkings, status } = useLazyAsyncData(
       .eq('cow_number', cowNumber)
       .gte('milked_at', oneMonthAgo.toISOString())
       .order('milked_at', { ascending: true })
-    if (error) { console.error('[milkings] error:', error); return [] }
+
+    if (error) {
+      console.error('[milkings] error:', error)
+      return []
+    }
+
     return data ?? []
   }
 )
