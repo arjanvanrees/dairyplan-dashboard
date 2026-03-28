@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Dashboard">
+      <UDashboardNavbar title="Chat">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -35,14 +35,9 @@
                 :text="getToolName(part)"
                 :streaming="isToolStreaming(part)"
               />
-              <!-- {{ part }} -->
-              <pre>
+              <ChatSources>
                 {{ JSON.stringify(part.output, null, 2) }}
-              </pre>
-              <!-- <pre
-                v-if="part.toolInvocation.state === 'output-available'"
-                class="mt-1 overflow-x-auto rounded bg-gray-100 p-3 text-sm dark:bg-gray-800"
-              >{{ JSON.stringify(part.toolInvocation.output, null, 2) }}</pre> -->
+              </ChatSources>
             </template>
 
             <MDC
@@ -57,7 +52,7 @@
 
       <UChatPrompt
         v-model="input"
-        class="sticky bottom-4"
+        class="sticky bottom-0"
         :error="chat.error"
         @submit="onSubmit"
       >
@@ -73,14 +68,17 @@
 
 <script setup lang="ts">
 import type { UIMessage } from 'ai'
-import { isReasoningUIPart, isTextUIPart, isToolUIPart, getToolName } from 'ai'
+import { isReasoningUIPart, isTextUIPart, isToolUIPart, getToolName, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { Chat } from '@ai-sdk/vue'
 import { isReasoningStreaming, isToolStreaming } from '@nuxt/ui/utils/ai'
 
 import { ref } from 'vue'
 
 const input = ref('')
-const chat = new Chat({})
+const chat = new Chat({
+  // Automatically submit when all tool results are available
+  sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls
+})
 
 function onSubmit() {
   chat.sendMessage({ text: input.value })

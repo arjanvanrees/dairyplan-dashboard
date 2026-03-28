@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages } from 'ai'
+import { streamText, convertToModelMessages, stepCountIs } from 'ai'
 import { tool } from '@ai-sdk/provider-utils'
 import { createOpenAI } from '@ai-sdk/openai'
 import { z } from 'zod'
@@ -14,14 +14,22 @@ export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
   const today = new Date().toISOString().split('T')[0]
 
+  const system = `
+    Je bent een behulpzame assistent voor een melkveebedrijf met toegang tot de Supabase database van het bedrijf.
+    De datum van vandaag is ${today}.
+    Je hebt toegang tot tools om informatie op te vragen over koeien, melkproductie en melkkwaliteitsmetingen.
+    Melkproductie wordt gemeten in kilogram (kg). Tel individuele melkbeurten altijd op bij het rapporteren van dagelijkse totalen.
+    Wees beknopt en specifiek bij het rapporteren van cijfers. Is een resultaat een lijst, presenteer deze dan in een tabel waar mogelijk.
+    Antwoord in het Nederlands, tenzij specifiek gevraagd om in een andere taal te antwoorden.
+    Als je informatie uit een tool krijgt, maak dan direct daarna een analyse daarop.
+  `
+
+
   return streamText({
     model: openai('gpt-5.1'),
     maxOutputTokens: 10000,
-    system: `You are a helpful dairy farm assistant with access to the farm's Supabase database.
-Today's date is ${today}.
-You have access to tools to query cow information, milking production records, and milk quality tests.
-Milk production is measured in kilograms (kg). Always sum up individual milkings when reporting daily totals.
-Be concise and specific when reporting numbers.`,
+    stopWhen: stepCountIs(5),
+    system: system,
     messages: await convertToModelMessages(messages),
     tools: {
       getCowInfo: tool({
@@ -33,10 +41,10 @@ Be concise and specific when reporting numbers.`,
         execute: async ({ cow_number, status_code }) => {
           let query = supabase.from('cows').select('*')
           if (cow_number !== undefined) query = query.eq('cow_number', cow_number)
-          if (status_code !== undefined) query = query.eq('status_code', status_code)
+          // if (status_code !== undefined) query = query.eq('status_code', status_code)
           const { data, error } = await query.order('cow_number').limit(100)
           if (error) throw new Error(error.message)
-          return data
+          return { data }
         }
       }),
 
