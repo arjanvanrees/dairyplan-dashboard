@@ -1,8 +1,8 @@
 import { streamText, convertToModelMessages, stepCountIs } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '../../app/types/database.types'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import type { Database, Json } from '../../app/types/database.types'
 
 import { getCowInfo } from '../utils/getCowinfo'
 import { getMilkings } from '../utils/getMilkings'
@@ -10,12 +10,39 @@ import { getMilkTests } from '../utils/getMilkTests'
 import { getTopProducers } from '../utils/getTopProducers'
 
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event)
+  if (!user) throw createError({ statusCode: 401, message: 'Unauthorized' })
+
   const openai = createOpenAI({
     apiKey: useRuntimeConfig().openaiApiKey
   })
 
-  const { messages } = await readBody(event)
+  const { messages, chatId: incomingChatId } = await readBody(event)
   const supabase = serverSupabaseServiceRole<Database>(event)
+
+  // Create a new chat if none was provided
+  let chatId: string = incomingChatId
+  if (!chatId) {
+    const firstUserMessage = (messages as { role: string; parts?: { type: string; text?: string }[] }[]).find(m => m.role === 'user')
+    const title: string = firstUserMessage?.parts?.find(p => p.type === 'text')?.text?.slice(0, 100) ?? 'Nieuw gesprek'
+    const { data: newChat, error } = await supabase
+      .from('chats')
+      .insert({ user_id: user.id, title })
+      .select('id')
+      .single()
+    if (error) throw createError({ statusCode: 500, message: error.message })
+    chatId = newChat.id
+  }
+
+  // Persist the latest user message (last element of the messages array)
+  const lastMessage = messages[messages.length - 1]
+  if (lastMessage?.role === 'user') {
+    await supabase.from('messages').insert({
+      chat_id: chatId,
+      role: 'user',
+      parts: lastMessage.parts ?? []
+    })
+  }
   const today = new Date().toISOString().split('T')[0]
 
   const system = `
@@ -61,6 +88,26 @@ export default defineEventHandler(async (event) => {
       getMilkings: getMilkings(supabase),
       getMilkTests: getMilkTests(supabase),
       getTopProducers: getTopProducers(supabase)
+    },
+    onFinish: async ({ response }) => {
+      // Save every assistant message produced during the (possibly multi-step) run
+      for (const msg of response.messages) {
+        if (msg.role !== 'assistant') continue
+        const content = msg.content
+        type CP = { type: string; text?: string; toolCallId?: string; toolName?: string; args?: unknown }
+        const parts = (typeof content === 'string'
+          ? [{ type: 'text', text: content }]
+          : (content as CP[]).flatMap((part): CP[] => {
+              if (part.type === 'text') return [{ type: 'text', text: part.text }]
+              if (part.type === 'tool-call') {
+                return [{ type: 'tool-call', toolCallId: part.toolCallId, toolName: part.toolName, args: part.args }]
+              }
+              return []
+            })) as Json
+        await supabase.from('messages').insert({ chat_id: chatId, role: 'assistant', parts })
+      }
     }
-  }).toUIMessageStreamResponse()
+  }).toUIMessageStreamResponse({
+    headers: { 'X-Chat-Id': chatId }
+  })
 })

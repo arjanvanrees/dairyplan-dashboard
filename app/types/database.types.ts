@@ -12,33 +12,61 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      chats: {
+        Row: {
+          created_at: string
+          id: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          chat_id: string
+          created_at: string
+          id: string
+          parts: Json | null
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role?: Database["public"]["Enums"]["message_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cows: {
         Row: {
           birth_date: string | null
@@ -189,16 +217,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      daily_milk_production: {
+        Args: { from_date: string; to_date: string }
+        Returns: {
+          cow_count: number
+          day: string
+          session1_kg: number
+          session2_kg: number
+          session3_kg: number
+          total_kg: number
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      message_role: "user" | "assistant"
     }
     CompositeTypes: {
       [_ in never]: never
     }
   }
 }
+
+export const Constants = {
+  public: {
+    Enums: {
+      message_role: ["user", "assistant"],
+    },
+  },
+} as const
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
@@ -316,12 +362,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
-  public: {
-    Enums: {},
-  },
-} as const
