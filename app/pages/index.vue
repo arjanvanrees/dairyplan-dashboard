@@ -58,8 +58,7 @@ const toDate = computed(() => {
 })
 
 definePageMeta({
-  layout: 'dashboard',
-  middleware: ['auth']
+  layout: 'dashboard'
 })
 
 useHead({

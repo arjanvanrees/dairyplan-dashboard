@@ -1,9 +1,13 @@
 <template>
   <UDashboardGroup>
     <UDashboardSidebar collapsible>
+      <template #header="{ collapsed }">
+        <UDashboardSearchButton :collapsed="collapsed" />
+      </template>
+
       <template #default="{ collapsed }">
         <UNavigationMenu
-          :items="items"
+          :items="menuItems"
           :collapsed="collapsed"
           orientation="vertical"
         />
@@ -11,7 +15,7 @@
 
       <template #footer="{ collapsed }">
         <UDropdownMenu
-          :items="userDropdownItems"
+          :items="userItems"
           :content="{ align: 'center', collisionPadding: 12 }"
           :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
         >
@@ -31,6 +35,18 @@
       </template>
     </UDashboardSidebar>
 
+    <UDashboardSearch
+      placeholder="Zoek chats..."
+      :groups="[{
+        id: 'links',
+        items: [{
+          label: 'Nieuwe chat',
+          to: '/chat',
+          icon: 'i-lucide-square-pen'
+        }]
+      }, ...chatItems]"
+    />
+
     <slot />
   </UDashboardGroup>
 </template>
@@ -41,19 +57,40 @@ const user = useSupabaseUser()
 
 const colorMode = useColorMode()
 
-const logout = async () => {
-  await client.auth.signOut()
-  navigateTo('/login')
+interface ChatData {
+  id: string
+  title: string
 }
 
-const items = [
+const chats = await $fetch<ChatData[]>('/api/chats')
+
+const chatItems = computed(() => {
+  return [{
+    id: 'recent-chats',
+    label: 'Recente chats',
+    type: 'label' as const,
+    items: chats.map(chat => ({
+      slot: 'chat' as const,
+      label: chat.title,
+      to: `/chat/${chat.id}`,
+      icon: 'eva:clock-outline'
+    }))
+  }]
+})
+
+const menuItems = [
   { label: 'Dashboard', icon: 'i-heroicons-home-20-solid', to: '/' },
   { label: 'Dieren', icon: 'mdi:cow', to: '/dieren' },
   { label: 'Productie', icon: 'i-heroicons-chart-bar-20-solid', to: '/productie' },
   { label: 'Chat', icon: 'i-heroicons-chat-bubble-oval-left-solid', to: '/chat' }
 ]
 
-const userDropdownItems = [
+const logout = async () => {
+  await client.auth.signOut()
+  navigateTo('/login')
+}
+
+const userItems = [
   {
     label: 'Kleurmodus',
     icon: 'i-lucide-sun-moon',

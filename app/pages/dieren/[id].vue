@@ -97,8 +97,7 @@ const route = useRoute()
 const cowNumber = Number(route.params.id)
 
 definePageMeta({
-  layout: 'dashboard',
-  middleware: ['auth']
+  layout: 'dashboard'
 })
 
 const { getLabel: getCowStatusLabel } = useCowStatus()

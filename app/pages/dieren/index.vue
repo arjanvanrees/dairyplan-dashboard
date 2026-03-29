@@ -68,8 +68,7 @@ const filteredCount = computed(() => table.value?.tableApi?.getFilteredRowModel(
 const globalFilter = ref('')
 
 definePageMeta({
-  layout: 'dashboard',
-  middleware: ['auth']
+  layout: 'dashboard'
 })
 
 useHead({
